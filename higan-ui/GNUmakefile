@@ -2,7 +2,7 @@ name := higan
 build := performance
 openmp := false
 local := true
-flags += -I. -I.. -I../higan
+flags += -I. -I.. -I../higan -O3 -march=haswell -mtune=haswell
 
 ifeq ($(local),true)
   ifeq ($(findstring arm,$(shell uname -m)),arm)

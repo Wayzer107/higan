@@ -1,11 +1,6 @@
-name: Build
+name: Localbuild
 on:
   workflow_dispatch:
-  push:
-    branches: [ master ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ master ]
 jobs:
   build:
     strategy:
@@ -26,14 +21,6 @@ jobs:
           shell: 'msys2 {0}'
           msystem: clang64
           msys-env: clang-x86_64
-        - name: macos
-          os: macos-latest
-          compiler: clang++
-          shell: sh
-        - name: ubuntu
-          os: ubuntu-latest
-          compiler: g++
-          shell: sh
     name: ${{ matrix.program }}-${{ matrix.platform.name }}
     runs-on: ${{ matrix.platform.os }}
     defaults:
@@ -47,11 +34,6 @@ jobs:
       with:
         msystem: ${{ matrix.platform.msystem }}
         install: make mingw-w64-${{ matrix.platform.msys-env }}-toolchain
-    - name: Install Dependencies
-      if: matrix.platform.name == 'ubuntu'
-      run: |
-        sudo apt-get update -y -qq
-        sudo apt-get install libsdl2-dev libgtksourceview2.0-dev libgtk2.0-dev libao-dev libopenal-dev
     - name: Make
       run: make -j4 -C ${{ matrix.program }} build=performance local=false profile=accuracy
     - name: Upload
@@ -86,13 +68,8 @@ jobs:
         bindir="${GITHUB_WORKSPACE}/bin"
 
         # Hack: Workaround for GitHub artifacts losing attributes.
-        for program in higan-ui icarus
-        do
-          chmod +x ${bindir}/${program}-ubuntu/*
-          chmod +x ${bindir}/${program}-macos/*/Contents/MacOS/*
-        done
 
-        for os in ubuntu windows macos
+        for os in windows
         do
           mkdir "${os}"
           cd "${os}"
@@ -191,15 +168,7 @@ jobs:
             echo "UPLOAD_URL=$(make_nightly_release | jq -r .upload_url)" >> $GITHUB_ENV
             ;;
         esac
-    - name: Upload higan-ubuntu
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-ubuntu.zip', asset_name: 'higan-ubuntu.zip', asset_content_type: 'application/zip' }
     - name: Upload higan-windows
       uses: actions/upload-release-asset@v1
       env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
       with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-windows.zip', asset_name: 'higan-windows.zip', asset_content_type: 'application/zip' }
-    - name: Upload higan-macos
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-macos.zip', asset_name: 'higan-macos.zip', asset_content_type: 'application/zip' }

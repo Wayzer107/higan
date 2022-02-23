@@ -20,12 +20,6 @@ jobs:
           shell: 'msys2 {0}'
           msystem: mingw64
           msys-env: x86_64
-        - name: windows-clang
-          os: windows-latest
-          compiler: clang++
-          shell: 'msys2 {0}'
-          msystem: clang64
-          msys-env: clang-x86_64
         - name: macos
           os: macos-latest
           compiler: clang++

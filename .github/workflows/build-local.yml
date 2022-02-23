@@ -22,7 +22,7 @@ jobs:
           msystem: clang64
           msys-env: clang-x86_64
     name: ${{ matrix.program }}-${{ matrix.platform.name }}
-    runs-on: ${{ matrix.platform.os }}
+    runs-on: self-hosted
     defaults:
       run:
         shell: ${{ matrix.platform.shell }}
